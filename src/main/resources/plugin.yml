@@ -1,0 +1,12 @@
+name: Ban
+main: com.i5mc.ban.BanPlugin
+version: ${project.version}
+author: caoli5288
+
+commands:
+  ban:
+    permission: ban.admin
+  unban:
+    permission: ban.admin
+
+depend: [SimpleORM]
