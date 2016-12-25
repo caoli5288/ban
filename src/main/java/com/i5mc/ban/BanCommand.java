@@ -31,7 +31,7 @@ public class BanCommand implements CommandExecutor {
         long expire = it.hasNext() ? new Long(it.next()) * 60000 : plugin.getConfig().getInt("default.expire", 15) * 60000;
         String reason = it.hasNext() ? it.next() : "";
         Player p = plugin.getPlayer(name);
-        if (!$.nil(p)) {
+        if (!$.nil(p) && p.isOnline()) {
             p.kickPlayer(reason);
         }
         plugin.execute(() -> plugin.ban(name, expire, reason));
