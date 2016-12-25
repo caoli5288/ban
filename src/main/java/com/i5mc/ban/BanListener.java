@@ -38,13 +38,12 @@ public class BanListener implements EventExecutor {
         if (limit(remote)) {
             login.setLoginResult(KICK_OTHER);
         } else {
-            process(login);
+            process(login, login.getName().toLowerCase());
         }
     }
 
-    private void process(AsyncPlayerPreLoginEvent login) {
+    private void process(AsyncPlayerPreLoginEvent login, String who) {
         Timestamp now = new Timestamp($.now());
-        String who = login.getName();
         Banned banned = map.get(who);
         if ($.nil(banned)) {
             banned = fetch(who, now);

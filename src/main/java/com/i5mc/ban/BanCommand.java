@@ -34,7 +34,7 @@ public class BanCommand implements CommandExecutor {
         if (!$.nil(p) && p.isOnline()) {
             p.kickPlayer(reason);
         }
-        plugin.execute(() -> plugin.ban(name, expire, reason));
+        plugin.execute(() -> plugin.ban(name.toLowerCase(), expire, reason));
         sender.sendMessage("操作已完成");
     }
 
