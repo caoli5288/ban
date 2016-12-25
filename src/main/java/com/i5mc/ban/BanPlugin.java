@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.Timestamp;
@@ -36,6 +37,8 @@ public class BanPlugin extends JavaPlugin implements Listener {
             handler.install();
         }
         handler.reflect();
+
+        getServer().getServicesManager().register(BanPlugin.class, this, this, ServicePriority.Normal);
 
         getCommand("ban").setExecutor(new BanCommand(this));
         getCommand("unban").setExecutor(new UnBanCommand(this));
