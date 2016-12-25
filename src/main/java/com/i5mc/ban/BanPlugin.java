@@ -38,10 +38,11 @@ public class BanPlugin extends JavaPlugin implements Listener {
         }
         handler.reflect();
 
-        getServer().getServicesManager().register(BanPlugin.class, this, this, ServicePriority.Normal);
-
-        getCommand("ban").setExecutor(new BanCommand(this));
-        getCommand("unban").setExecutor(new UnBanCommand(this));
+        getServer().getServicesManager().register(BanPlugin.class,
+                this,
+                this,
+                ServicePriority.Normal
+        );
 
         if (getConfig().getBoolean("listener")) {
             limit = new ConcurrentHashMap<>();
@@ -53,6 +54,9 @@ public class BanPlugin extends JavaPlugin implements Listener {
                     , this
             );
         }
+
+        getCommand("ban").setExecutor(new BanCommand(this));
+        getCommand("unban").setExecutor(new UnBanCommand(this));
     }
 
     public void run(Runnable r, int i) {
