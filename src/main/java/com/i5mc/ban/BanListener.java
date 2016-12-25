@@ -1,5 +1,6 @@
 package com.i5mc.ban;
 
+import lombok.RequiredArgsConstructor;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventException;
 import org.bukkit.event.Listener;
@@ -7,8 +8,8 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.plugin.EventExecutor;
 
 import java.sql.Timestamp;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import static org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result.ALLOWED;
 import static org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result.KICK_BANNED;
@@ -17,16 +18,12 @@ import static org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result.KICK_OTHER
 /**
  * Created on 16-12-25.
  */
+@RequiredArgsConstructor
 public class BanListener implements EventExecutor {
 
     public static final Integer MAX_LIMIT = 10;
     public final BanPlugin plugin;
-    public final Map<String, Banned> map;
-
-    public BanListener(BanPlugin plugin) {
-        this.plugin = plugin;
-        map = new ConcurrentHashMap<>(0xFF);
-    }
+    public final ConcurrentMap<String, Banned> map = new ConcurrentHashMap<>();
 
     @Override
     public void execute(Listener listener, Event event) throws EventException {
@@ -41,16 +38,38 @@ public class BanListener implements EventExecutor {
         if (limit(remote)) {
             login.setLoginResult(KICK_OTHER);
         } else {
-            Banned banned = plugin.getDatabase().find(Banned.class)
-                    .where()
-                    .eq("name", login.getName())
-                    .gt("expire", new Timestamp($.now()))
-                    .setMaxRows(1)
-                    .findUnique();
-            if (!$.nil(banned)) {
+            process(login);
+        }
+    }
+
+    private void process(AsyncPlayerPreLoginEvent login) {
+        Timestamp now = new Timestamp($.now());
+        String who = login.getName();
+        Banned banned = map.get(who);
+        if ($.nil(banned)) {
+            banned = fetch(who, now);
+        }
+        if (!$.nil(banned)) {
+            if (banned.getExpire().after(now)) {
                 login.setLoginResult(KICK_BANNED);
+            } else {
+                map.remove(who, banned);
             }
         }
+    }
+
+    private Banned fetch(String who, Timestamp now) {
+        Banned banned = plugin.getDatabase().find(Banned.class)
+                .where()
+                .eq("name", who)
+                .gt("expire", now)
+                .setMaxRows(1)
+                .findUnique();
+        if (!$.nil(banned)) {
+            map.put(who, banned);
+            plugin.run(() -> map.remove(who, banned), 6000);
+        }
+        return banned;
     }
 
     public boolean limit(String remote) {

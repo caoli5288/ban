@@ -52,6 +52,10 @@ public class BanPlugin extends JavaPlugin implements Listener {
         }
     }
 
+    public void run(Runnable r, int i) {
+        getServer().getScheduler().runTaskLater(this, r, i);
+    }
+
     public void run(Runnable r, int i, int timer) {
         getServer().getScheduler().runTaskTimer(this, r, i, timer);
     }
