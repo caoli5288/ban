@@ -36,6 +36,7 @@ public class BanListener implements EventExecutor {
     public void handle(AsyncPlayerPreLoginEvent login) {
         String remote = login.getAddress().getHostAddress();
         if (limit(remote)) {
+            login.setKickMessage("服务器繁忙，请稍后尝试登陆");
             login.setLoginResult(KICK_OTHER);
         } else {
             process(login, login.getName().toLowerCase());
@@ -51,6 +52,11 @@ public class BanListener implements EventExecutor {
         if (!$.nil(banned)) {
             if (banned.getExpire().after(now)) {
                 login.setLoginResult(KICK_BANNED);
+                String r = banned.getReason();
+                if (r.isEmpty()) {
+                    r = "系统封禁";
+                }
+                login.setKickMessage(r + " 至 " + banned.getExpire().toString());
             } else {
                 map.remove(who, banned);
             }
