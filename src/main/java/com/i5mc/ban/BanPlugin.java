@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class BanPlugin extends JavaPlugin implements Listener {
 
     public Map<String, Integer> limit;
+    Messenger messenger;
 
     @Override
     public void onEnable() {
@@ -37,6 +38,8 @@ public class BanPlugin extends JavaPlugin implements Listener {
             handler.install();
         }
         handler.reflect();
+
+        messenger = new Messenger(this);
 
         getServer().getServicesManager().register(BanPlugin.class,
                 this,
