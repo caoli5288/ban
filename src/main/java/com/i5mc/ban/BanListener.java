@@ -46,20 +46,16 @@ public class BanListener implements EventExecutor {
     private void process(AsyncPlayerPreLoginEvent login, String who) {
         Timestamp now = new Timestamp($.now());
         Banned banned = map.get(who);
-        if ($.nil(banned)) {
+        if ($.nil(banned) || !banned.getExpire().after(now)) {
             banned = fetch(who, now);
         }
         if (!$.nil(banned)) {
-            if (banned.getExpire().after(now)) {
-                login.setLoginResult(KICK_BANNED);
-                String r = banned.getReason();
-                if (r.isEmpty()) {
-                    r = plugin.messenger.find("default.reason", "系统封禁");
-                }
-                login.setKickMessage(r + " 至 " + banned.getExpire().toString());
-            } else {
-                map.remove(who, banned);
+            login.setLoginResult(KICK_BANNED);
+            String r = banned.getReason();
+            if (r.isEmpty()) {
+                r = plugin.messenger.find("default.reason", "系统封禁");
             }
+            login.setKickMessage(r + " 至 " + banned.getExpire().toString());
         }
     }
 
