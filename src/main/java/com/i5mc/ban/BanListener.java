@@ -46,24 +46,20 @@ public class BanListener implements EventExecutor {
     private void process(AsyncPlayerPreLoginEvent login, String who) {
         Timestamp now = new Timestamp($.now());
         Banned banned = map.get(who);
-        if ($.nil(banned)) {
+        if ($.nil(banned) || !banned.getExpire().after(now)) {
             banned = fetch(who, now);
         }
         if (!$.nil(banned)) {
-            if (banned.getExpire().after(now)) {
-                login.setLoginResult(KICK_BANNED);
-                String reason = banned.getReason();
-                if (reason.isEmpty()) {
-                    reason = plugin.messenger.find("default.reason", "系统封禁");
-                }
-                login.setKickMessage(plugin.messenger.find("default.title", "§4§l您已被系统封禁暂时无法登陆游戏，原因如下") + "\n"
-                        + reason + "\n"
-                        + "解封时间 " + banned.getExpire().toString()
-                        + "\n"
-                        + plugin.messenger.find("default.tail", "如需申诉请前往 www.i5mc.com"));
-            } else {
-                map.remove(who, banned);
+            login.setLoginResult(KICK_BANNED);
+            String reason = banned.getReason();
+            if (reason.isEmpty()) {
+                reason = plugin.messenger.find("default.reason", "系统封禁");
             }
+            login.setKickMessage(plugin.messenger.find("default.title", "§4§l您已被系统封禁暂时无法登陆游戏，原因如下") + "\n"
+                    + reason + "\n"
+                    + "解封时间 " + banned.getExpire().toString()
+                    + "\n"
+                    + plugin.messenger.find("default.tail", "如需申诉请前往 www.i5mc.com"));
         }
     }
 
