@@ -57,7 +57,7 @@ public class BanListener implements EventExecutor {
             }
             login.setKickMessage(plugin.messenger.find("default.title", "§4§l您已被系统封禁暂时无法登陆游戏，原因如下") + "\n"
                     + reason + "\n"
-                    + "解封时间 " + banned.getExpire().toString()
+                    + "解封时间 " + banned.getExpire().toString() + "\n"
                     + "\n"
                     + plugin.messenger.find("default.tail", "如需申诉请前往 www.i5mc.com"));
         }
