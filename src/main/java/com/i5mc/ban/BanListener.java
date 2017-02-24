@@ -68,7 +68,6 @@ public class BanListener implements EventExecutor {
                 .where()
                 .eq("name", who)
                 .gt("expire", now)
-                .setMaxRows(1)
                 .findUnique();
         if (!$.nil(banned)) {
             map.put(who, banned);
