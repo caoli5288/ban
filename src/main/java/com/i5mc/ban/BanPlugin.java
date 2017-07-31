@@ -3,6 +3,8 @@ package com.i5mc.ban;
 import com.mengcraft.simpleorm.DatabaseException;
 import com.mengcraft.simpleorm.EbeanHandler;
 import com.mengcraft.simpleorm.EbeanManager;
+import lombok.val;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -11,7 +13,6 @@ import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -70,9 +71,10 @@ public class BanPlugin extends JavaPlugin implements Listener {
         getServer().getScheduler().runTaskTimer(this, r, i, timer);
     }
 
-    public void ban(String name, long expire, String reason) {
+    public void ban(CommandSender sender, String name, long expire, String reason) {
         Banned banned = new Banned();
         banned.setName(name);
+        banned.setExecutor(sender.getName());
         banned.setExpire(new Timestamp($.now() + expire));
         banned.setReason(reason);
 
@@ -82,15 +84,13 @@ public class BanPlugin extends JavaPlugin implements Listener {
     }
 
     public void unban(String name) {
-        Timestamp now = new Timestamp($.now());
-        List<Banned> list = getDatabase().find(Banned.class)
-                .where()
-                .eq("name", name)
-                .gt("expire", now)
-                .findList();
+        val t = new Timestamp($.now());
+        val list = getDatabase().find(Banned.class).where("name = :name and expire > :expire")
+                .setParameter("name", name)
+                .setParameter("expire", t).findList();
         if (!list.isEmpty()) {
             for (Banned banned : list) {
-                banned.setExpire(now);
+                banned.setExpire(t);
             }
             getDatabase().save(list);
         }

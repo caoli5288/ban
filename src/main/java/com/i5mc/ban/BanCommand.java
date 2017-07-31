@@ -38,7 +38,7 @@ public class BanCommand implements CommandExecutor {
             plugin.run(() -> kick(reason, p), 1);
         }
         sender.sendMessage("操作已完成");
-        plugin.execute(() -> plugin.ban(name.toLowerCase(), expire, reason));
+        plugin.execute(() -> plugin.ban(sender, name.toLowerCase(), expire, reason));
     }
 
     private void kick(String reason, Player p) {

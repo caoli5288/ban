@@ -2,6 +2,7 @@ package com.i5mc.ban;
 
 import com.avaje.ebean.annotation.CreatedTimestamp;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,8 +12,9 @@ import java.sql.Timestamp;
 /**
  * Created on 16-12-25.
  */
-@Entity
 @Data
+@Entity
+@EqualsAndHashCode(of = "id")
 public class Banned {
 
     @Id
@@ -20,6 +22,9 @@ public class Banned {
 
     @Column(nullable = false, length = 16)
     private String name;
+
+    @Column(nullable = false, length = 16)
+    private String executor;
 
     @Column(nullable = false)
     private String reason;
@@ -29,5 +34,4 @@ public class Banned {
 
     @CreatedTimestamp
     private Timestamp time;
-
 }
