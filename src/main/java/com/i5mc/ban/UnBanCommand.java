@@ -18,7 +18,7 @@ public class UnBanCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command i, String label, String[] j) {
         if (j.length == 0) return false;
-        plugin.execute(() -> plugin.unban(j[0]));
+        plugin.execute(() -> plugin.unBan(j[0]));
         sender.sendMessage("操作已完成");
         return true;
     }

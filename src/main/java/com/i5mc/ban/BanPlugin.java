@@ -1,5 +1,6 @@
 package com.i5mc.ban;
 
+import com.avaje.ebean.EbeanServer;
 import com.mengcraft.simpleorm.DatabaseException;
 import com.mengcraft.simpleorm.EbeanHandler;
 import com.mengcraft.simpleorm.EbeanManager;
@@ -21,8 +22,16 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class BanPlugin extends JavaPlugin implements Listener {
 
+    public static final long MAX_EXPIRE = 2147483647000L;
+    public static final int MAX_LIMIT = 10;
+
     public Map<String, Integer> limit;
     Messenger messenger;
+    private EbeanServer database;
+
+    public EbeanServer getDatabase() {
+        return database;
+    }
 
     @Override
     public void onEnable() {
@@ -36,10 +45,11 @@ public class BanPlugin extends JavaPlugin implements Listener {
             } catch (DatabaseException e) {
                 throw new RuntimeException(e);
             }
-            handler.install();
         }
+        handler.install();
         handler.reflect();
 
+        database = handler.getServer();
         messenger = new Messenger(this);
 
         getServer().getServicesManager().register(BanPlugin.class,
@@ -61,6 +71,8 @@ public class BanPlugin extends JavaPlugin implements Listener {
 
         getCommand("ban").setExecutor(new BanCommand(this));
         getCommand("unban").setExecutor(new UnBanCommand(this));
+        getCommand("banip").setExecutor(new BanIpCommand(this));
+        getCommand("unbanip").setExecutor(new UnBanIpCommand(this));
     }
 
     public void run(Runnable r, int i) {
@@ -78,22 +90,43 @@ public class BanPlugin extends JavaPlugin implements Listener {
         banned.setExpire(new Timestamp($.now() + expire));
         banned.setReason(reason);
 
-        unban(name);
+        unBan(name);
 
         getDatabase().save(banned);
     }
 
-    public void unban(String name) {
-        val t = new Timestamp($.now());
-        val list = getDatabase().find(Banned.class).where("name = :name and expire > :expire")
+    public void unBan(String name) {
+        val list = getDatabase().find(Banned.class).where("name = :name and expire > now()")
                 .setParameter("name", name)
-                .setParameter("expire", t).findList();
+                .findList();
         if (!list.isEmpty()) {
+            val now = new Timestamp($.now());
             for (Banned banned : list) {
-                banned.setExpire(t);
+                banned.setExpire(now);
             }
             getDatabase().save(list);
         }
+    }
+
+    public void banIp(CommandSender executor, Player who, long expire, String reason) {
+        val cli = who.getAddress().getAddress().getHostAddress();
+        unBanIp(cli);
+
+        val ban = new BannedIp();
+        ban.setIp(cli);
+        ban.setExecutor(executor.getName());
+        ban.setReason(reason);
+        if (expire > $.now()) {
+            ban.setExpire(new Timestamp(expire));
+        }
+
+        database.save(ban);
+    }
+
+    public void unBanIp(String ip) {
+        database.createUpdate(BannedIp.class, "DELETE FROM banned_ip WHERE ip = :ip")
+                .set("ip", ip)
+                .execute();
     }
 
     public Player getPlayer(String name) {

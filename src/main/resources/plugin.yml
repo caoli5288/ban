@@ -8,5 +8,9 @@ commands:
     permission: ban.admin
   unban:
     permission: ban.admin
+  banip:
+    permission: ban.admin
+  unbanip:
+    permission: ban.admin
 
 depend: [SimpleORM]

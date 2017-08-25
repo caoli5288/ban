@@ -1,6 +1,7 @@
 package com.i5mc.ban;
 
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventException;
 import org.bukkit.event.Listener;
@@ -21,9 +22,9 @@ import static org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result.KICK_OTHER
 @RequiredArgsConstructor
 public class BanListener implements EventExecutor {
 
-    public static final Integer MAX_LIMIT = 10;
     public final BanPlugin plugin;
-    public final ConcurrentMap<String, Banned> map = new ConcurrentHashMap<>();
+    public final ConcurrentMap<String, BannedIp> ip = new ConcurrentHashMap<>();
+    public final ConcurrentMap<String, Banned> name = new ConcurrentHashMap<>();
 
     @Override
     public void execute(Listener listener, Event event) throws EventException {
@@ -33,10 +34,22 @@ public class BanListener implements EventExecutor {
         }
     }
 
+    boolean checkIp(String cli) {
+        val i = ip.computeIfAbsent(cli, key -> {
+            val ban = plugin.getDatabase().find(BannedIp.class).where("ip = :ip and expire > now()").setParameter("ip", cli).findUnique();
+            plugin.run(() -> ip.remove(cli), 12000);
+            return $.nil(ban) ? BannedIp.NIL : ban;
+        });
+        return i == BannedIp.NIL;
+    }
+
     public void handle(AsyncPlayerPreLoginEvent login) {
         String remote = login.getAddress().getHostAddress();
         if (limit(remote)) {
             login.setKickMessage(plugin.messenger.find("kick.fail", "服务器繁忙，请稍后尝试登陆"));
+            login.setLoginResult(KICK_OTHER);
+        } else if (!checkIp(remote)) {
+            login.setKickMessage(plugin.messenger.find("kick.ipban", "您的网络ip已被封禁"));
             login.setLoginResult(KICK_OTHER);
         } else {
             process(login, login.getName().toLowerCase());
@@ -45,9 +58,9 @@ public class BanListener implements EventExecutor {
 
     private void process(AsyncPlayerPreLoginEvent login, String who) {
         Timestamp now = new Timestamp($.now());
-        Banned banned = map.get(who);
+        Banned banned = name.get(who);
         if ($.nil(banned) || !banned.getExpire().after(now)) {
-            banned = fetch(who, now);
+            banned = fetch(who);
         }
         if (!$.nil(banned)) {
             login.setLoginResult(KICK_BANNED);
@@ -63,15 +76,14 @@ public class BanListener implements EventExecutor {
         }
     }
 
-    private Banned fetch(String who, Timestamp now) {
-        Banned banned = plugin.getDatabase().find(Banned.class)
-                .where()
-                .eq("name", who)
-                .gt("expire", now)
+    private Banned fetch(String who) {
+        val banned = plugin.getDatabase().find(Banned.class)
+                .where("name = :who and expire > now()")
+                .setParameter("who", who)
                 .findUnique();
         if (!$.nil(banned)) {
-            map.put(who, banned);
-            plugin.run(() -> map.remove(who, banned), 6000);
+            name.put(who, banned);
+            plugin.run(() -> name.remove(who, banned), 12000);
         }
         return banned;
     }
@@ -79,7 +91,7 @@ public class BanListener implements EventExecutor {
     public boolean limit(String remote) {
         Integer i = plugin.limit.get(remote);
         if ($.nil(i)) {
-            i = MAX_LIMIT;
+            i = BanPlugin.MAX_LIMIT;
         }
         if (i < 0) return true;
         plugin.limit.put(remote, --i);
