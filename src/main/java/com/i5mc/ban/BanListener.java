@@ -35,8 +35,8 @@ public class BanListener implements EventExecutor {
     }
 
     boolean checkIp(String cli) {
-        val i = ip.computeIfAbsent(cli, key -> {
-            val ban = plugin.getDatabase().find(BannedIp.class).where("ip = :ip and expire > now()").setParameter("ip", cli).findUnique();
+        BannedIp i = ip.computeIfAbsent(cli, key -> {
+            BannedIp ban = plugin.getDatabase().find(BannedIp.class).where("ip = :ip and expire > now()").setParameter("ip", cli).findUnique();
             plugin.run(() -> ip.remove(cli), 12000);
             return $.nil(ban) ? BannedIp.NIL : ban;
         });
