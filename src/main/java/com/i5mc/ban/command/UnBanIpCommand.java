@@ -1,5 +1,6 @@
-package com.i5mc.ban;
+package com.i5mc.ban.command;
 
+import com.i5mc.ban.BanPlugin;
 import lombok.AllArgsConstructor;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -17,10 +18,10 @@ public class UnBanIpCommand implements CommandExecutor {
     private BanPlugin plugin;
 
     @Override
-    public boolean onCommand(CommandSender op, Command _i, String lab, String[] input) {
+    public boolean onCommand(CommandSender sender, Command _i, String lab, String[] input) {
         if (input.length == 0) return false;
-        runAsync(() -> plugin.unBanIp(input[0]));
-        plugin.messenger.send(op, "default.commit", ChatColor.GREEN + "操作已提交");
+        runAsync(() -> plugin.unbanip(sender, input[0]));
+        plugin.getMessenger().send(sender, "default.commit", ChatColor.GREEN + "操作已提交");
         return true;
     }
 }

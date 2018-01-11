@@ -1,10 +1,12 @@
-package com.i5mc.ban;
+package com.i5mc.ban.entity;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import java.sql.Timestamp;
 
 /**
@@ -12,19 +14,19 @@ import java.sql.Timestamp;
  */
 @Data
 @Entity
+@EqualsAndHashCode(of = "id")
 public class BannedIp {
-
-    public static final BannedIp NIL = new BannedIp();
 
     @Id
     private int id;
 
-    @Column(nullable = false, unique = true)
+    @Column(length = 15, unique = true)
     private String ip;
 
     private Timestamp expire;
 
-    private String reason;
+    @OneToOne
+    private BanLog latestLog;
 
-    private String executor;
+    private Timestamp latestUpdate;
 }

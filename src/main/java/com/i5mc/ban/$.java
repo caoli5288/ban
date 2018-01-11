@@ -5,10 +5,6 @@ package com.i5mc.ban;
  */
 public final class $ {
 
-    private $() {
-        throw new UnsupportedOperationException();
-    }
-
     public static boolean nil(Object what) {
         return what == null;
     }
@@ -16,4 +12,5 @@ public final class $ {
     public static long now() {
         return System.currentTimeMillis();
     }
+
 }

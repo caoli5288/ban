@@ -7,8 +7,8 @@
 
     <repositories>
         <repository>
-            <id>ci</id>
-            <url>http://ci.mengcraft.com:8080/plugin/repository/everything/</url>
+            <id>i7mc</id>
+            <url>http://ci.mengcraft.com:8080/plugin/repository/everything</url>
         </repository>
     </repositories>
 
@@ -16,19 +16,19 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.8.8-R0.1-SNAPSHOT</version>
+            <version>1.11.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.16.8</version>
+            <version>1.16.18</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.mengcraft</groupId>
             <artifactId>simpleorm</artifactId>
-            <version>0.3.3</version>
+            <version>0.8.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

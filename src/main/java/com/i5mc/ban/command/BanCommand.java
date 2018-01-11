@@ -1,5 +1,8 @@
-package com.i5mc.ban;
+package com.i5mc.ban.command;
 
+import com.i5mc.ban.$;
+import com.i5mc.ban.BanPlugin;
+import com.i5mc.ban.TimeTickUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -8,6 +11,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created on 16-12-25.
@@ -27,10 +31,10 @@ public class BanCommand implements CommandExecutor {
         return true;
     }
 
-    private void ban(CommandSender sender, Iterator<String> it) {
-        String name = it.next();
-        long expire = it.hasNext() ? Long.parseLong(it.next()) * 60000 : plugin.getConfig().getInt("default.expire", 15) * 60000;
-        String reason = it.hasNext() ? it.next() : "";
+    private void ban(CommandSender sender, Iterator<String> itr) {
+        String name = itr.next();
+        long expire = itr.hasNext() ? TimeTickUtil.toTime(itr.next(), TimeUnit.MILLISECONDS) : plugin.getConfig().getInt("default.expire", 15) * 60000;
+        String reason = itr.hasNext() ? itr.next() : "";
         Player p = plugin.getPlayer(name);
         if (Bukkit.isPrimaryThread()) {
             kick(reason, p);

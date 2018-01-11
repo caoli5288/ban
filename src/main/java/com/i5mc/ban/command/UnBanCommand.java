@@ -1,5 +1,6 @@
-package com.i5mc.ban;
+package com.i5mc.ban.command;
 
+import com.i5mc.ban.BanPlugin;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -18,7 +19,7 @@ public class UnBanCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command i, String label, String[] j) {
         if (j.length == 0) return false;
-        plugin.execute(() -> plugin.unBan(j[0]));
+        plugin.execute(() -> plugin.unban(sender, j[0]));
         sender.sendMessage("操作已完成");
         return true;
     }

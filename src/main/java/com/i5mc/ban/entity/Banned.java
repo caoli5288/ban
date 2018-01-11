@@ -1,12 +1,12 @@
-package com.i5mc.ban;
+package com.i5mc.ban.entity;
 
-import com.avaje.ebean.annotation.CreatedTimestamp;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import java.sql.Timestamp;
 
 /**
@@ -20,18 +20,13 @@ public class Banned {
     @Id
     private int id;
 
-    @Column(nullable = false, length = 16)
+    @Column(length = 16, unique = true)
     private String name;
 
-    @Column(nullable = false, length = 16)
-    private String executor;
-
-    @Column(nullable = false)
-    private String reason;
-
-    @Column(nullable = false)
     private Timestamp expire;
 
-    @CreatedTimestamp
-    private Timestamp time;
+    @OneToOne
+    private BanLog latestLog;
+
+    private Timestamp latestUpdate;
 }

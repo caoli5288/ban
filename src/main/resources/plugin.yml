@@ -12,5 +12,9 @@ commands:
     permission: ban.admin
   unbanip:
     permission: ban.admin
+  mute:
+    permission: ban.admin
+  unmute:
+    permission: ban.admin
 
 depend: [SimpleORM]
