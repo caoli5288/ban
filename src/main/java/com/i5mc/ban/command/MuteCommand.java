@@ -16,8 +16,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
@@ -42,7 +40,7 @@ public class MuteCommand implements CommandExecutor {
             return false;
         }
 
-        long duration = itr.hasNext() ? TimeTickUtil.toTime(itr.next(), TimeUnit.MILLISECONDS) : -1;
+        long duration = itr.hasNext() ? TimeTickUtil.toTime(itr.next(), TimeUnit.MILLISECONDS) : TimeUnit.DAYS.toMillis(1);
         String reason = itr.hasNext() ? itr.next() : null;
 
         plugin.execute(() -> {
@@ -62,7 +60,7 @@ public class MuteCommand implements CommandExecutor {
             log.setReason(reason);
             log.setLogTime(new Timestamp($.now()));
 
-            mute.setExpire(duration >= 1 ? new Timestamp($.now() + duration) : Timestamp.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+            mute.setExpire(new Timestamp($.now() + duration));
             mute.setLatestLog(log);
             mute.setLatestUpdate(log.getLogTime());
 
