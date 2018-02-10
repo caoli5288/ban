@@ -76,7 +76,7 @@ public class BanPlugin extends JavaPlugin implements Listener {
             );
             getServer().getPluginManager().registerEvent(AsyncPlayerChatEvent.class
                     , this
-                    , EventPriority.HIGHEST
+                    , EventPriority.LOW
                     , new MuteListener(this)
                     , this
             );
