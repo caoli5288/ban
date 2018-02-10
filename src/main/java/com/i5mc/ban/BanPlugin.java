@@ -1,6 +1,7 @@
 package com.i5mc.ban;
 
 import com.avaje.ebean.EbeanServer;
+import com.google.common.io.ByteStreams;
 import com.i5mc.ban.command.BanCommand;
 import com.i5mc.ban.command.BanIpCommand;
 import com.i5mc.ban.command.MuteCommand;
@@ -16,6 +17,7 @@ import com.mengcraft.simpleorm.DatabaseException;
 import com.mengcraft.simpleorm.EbeanHandler;
 import com.mengcraft.simpleorm.EbeanManager;
 import lombok.Getter;
+import lombok.val;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
@@ -81,6 +83,8 @@ public class BanPlugin extends JavaPlugin implements Listener {
                     , this
             );
         }
+
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
         getCommand("ban").setExecutor(new BanCommand(this));
         getCommand("unban").setExecutor(new UnBanCommand(this));
@@ -222,4 +226,18 @@ public class BanPlugin extends JavaPlugin implements Listener {
         getServer().getScheduler().runTaskAsynchronously(this, r);
     }
 
+    public void globalKick(String name, String reason) {
+        val itr = getServer().getOnlinePlayers().iterator();
+        if (!itr.hasNext()) {
+            return;
+        }
+
+        val receiver = itr.next();
+        val buf = ByteStreams.newDataOutput();
+        buf.writeUTF("KickPlayer");
+        buf.writeUTF(name);
+        buf.writeUTF(nil(reason) ? "" : reason);
+
+        receiver.sendPluginMessage(this, "BungeeCord", buf.toByteArray());
+    }
 }
